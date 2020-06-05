@@ -1,21 +1,9 @@
-import * as express from 'express';
-import * as mongoose from 'mongoose';
-import { getEnviromentVariables } from './enviroments/env';
+// litsen is use for start server
+// app.listen(5000,()=> {
+//    console.log('server is running at port 5000');
+// })
 
-//here is constructor call as express()
-let app:express.Application = express();
 
-//litsen is use for start server
-app.listen(5000,()=> {
-   console.log('server is running at port 5000');
-})
-
-//connecting mongodb from this setup with enviroment variables
-console.log(getEnviromentVariables().db_url);
-mongoose.connect(getEnviromentVariables().db_url,{ useNewUrlParser: true, useUnifiedTopology: true })
-.then(() =>{
-  console.log("Connect");
-})
 
 
 //Routing example
@@ -31,10 +19,10 @@ let data = {
 //   next();
 // })
 
-app.get('api/user/login', (req, res, next) => {
-    console.log('middleware of login called');
-    res.status(200).send(data);
-})
-app.get('api/user/signup', (req, res) => {
-    res.status(200).send(data);
-})
+// app.get('api/user/login', (req, res, next) => {
+//     console.log('middleware of login called');
+//     res.status(200).send(data);
+// })
+// app.get('api/user/signup', (req, res) => {
+//     res.status(200).send(data);
+// })
