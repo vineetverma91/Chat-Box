@@ -1,12 +1,12 @@
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import { getEnviromentVariables } from './enviroments/env';
-import { UserRouter } from './routers/user-router';
+import userRouter, { UserRouter } from './routers/user-router';
 
 export class Server {
 
     public app: express.Application = express();
-    private userRouter: UserRouter;
+    public userRouter: UserRouter;
 
     constructor() {
         this.setConfigurations();
@@ -18,10 +18,10 @@ export class Server {
     // ============================================================
 
     setConfigurations() {
-        this.setMongodb();
+        this.connectMongodb();
     }
 
-    setMongodb() {
+    connectMongodb() {
         const databaseUrl = getEnviromentVariables().db_url;
         mongoose.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true })
             .then(() => {
@@ -33,6 +33,6 @@ export class Server {
 
     setRoutes() {
        //debugger
-       this.app.use('/api/user',UserRouter.call);
+       this.app.use('/api/user',userRouter);
     }
 }
