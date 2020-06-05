@@ -11,6 +11,8 @@ export class Server {
     constructor() {
         this.setConfigurations();
         this.setRoutes();
+        this.error404Handler();
+        this.handleError();
     }
 
     // ============================================================
@@ -25,14 +27,34 @@ export class Server {
         const databaseUrl = getEnviromentVariables().db_url;
         mongoose.connect(databaseUrl, { useNewUrlParser: true, useUnifiedTopology: true })
             .then(() => {
-                console.log("Connect");
+                console.log("Database is connect");
             }).catch((err) => {
-                console.log("Not Connected:",err);
+                console.log("Database is not connected:",err);
             })
     }
 
     setRoutes() {
        //debugger
        this.app.use('/api/user',userRouter);
+    }
+
+    error404Handler() {
+        this.app.use((req, res) => {
+          res.status(404).json({
+              message: 'Not Found',
+              status_code: 404
+          })
+        });
+    }
+
+    handleError() {
+        //it is special type of middle ware which is use for handle internal error of controller
+        this.app.use((error,req,res,next) => {
+           const errorstatus = req.errorStatus();
+           res.status(errorstatus).json({
+               message: error.message || 'Something Went Wrong, Please Try Again',
+               status_code: errorstatus
+           })
+        });
     }
 }
