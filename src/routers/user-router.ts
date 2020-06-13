@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/user-controller';
+import { userValidators } from '../validators/userValidators';
+import { GlobalMiddleware } from '../middlewares/globalMiddleware';
 
 export class UserRouter {
 
@@ -9,20 +11,20 @@ export class UserRouter {
         this.router = Router();
         this.getRoutes();
         this.postRoutes();
-        this.pacthRoutes();
+        this.patchRoutes();
         this.deleteRoutes();
     }
 
     getRoutes() {
-        this.router.post('/login', UserController.login);
+
     }
 
     postRoutes() {
-
+        this.router.post('/signup', userValidators.signUp(), GlobalMiddleware.checkError, UserController.signUp);
     }
 
-    pacthRoutes() {
-        
+    patchRoutes() {
+        this.router.post('/verify', userValidators.verifyUser(), GlobalMiddleware.checkError, UserController.verify);
     }
 
     deleteRoutes() {

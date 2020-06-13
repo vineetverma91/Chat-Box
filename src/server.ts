@@ -52,7 +52,7 @@ export class Server {
     handleError() {
         //it is special type of middle ware which is use for handle internal error of controller
         this.app.use((error,req,res,next) => {
-           const errorstatus = req.errorStatus();
+           const errorstatus = req.errorStatus || 500;
            res.status(errorstatus).json({
                message: error.message || 'Something Went Wrong, Please Try Again',
                status_code: errorstatus
