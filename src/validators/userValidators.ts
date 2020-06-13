@@ -4,7 +4,7 @@ import User from "../models/user";
 export class userValidators {
     static signUp() {
         return [body('email', 'Email is Required').isEmail().custom((email, { req }) => {
-            console.log(req.body);
+            //console.log(req.body);
             return User.findOne({ email: email }).then(user => {
                 if (user) {
                     throw new Error('User is already Exist');
