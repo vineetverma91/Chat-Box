@@ -3,7 +3,7 @@ import User from "../models/user";
 
 export class userValidators {
     static signUp() {
-        return [body('email', 'Email is Required').isEmail().custom((email, { req }) => {
+        return [body('email', 'Email is Required').isEmail().custom((email) => {
             //console.log(req.body);
             return User.findOne({ email: email }).then(user => {
                 if (user) {
@@ -21,6 +21,10 @@ export class userValidators {
     static verifyUser() {
         return [body('verification_token', 'Verification Token is Required').isNumeric(),
         body('email', 'Email is Required').isEmail()]
+    }
+
+    static resendVerificationEmail() {
+        return [body('email').isEmail()]
     }
 }
 

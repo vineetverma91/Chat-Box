@@ -16,7 +16,7 @@ export class UserRouter {
     }
 
     getRoutes() {
-
+        this.router.get('/send/verification/email',userValidators.resendVerificationEmail(), UserController.resendVerificationEmail);
     }
 
     postRoutes() {
@@ -24,7 +24,7 @@ export class UserRouter {
     }
 
     patchRoutes() {
-        this.router.post('/verify', userValidators.verifyUser(), GlobalMiddleware.checkError, UserController.verify);
+        this.router.patch('/verify', userValidators.verifyUser(), GlobalMiddleware.checkError, UserController.verify);
     }
 
     deleteRoutes() {
