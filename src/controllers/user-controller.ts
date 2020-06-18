@@ -4,6 +4,7 @@ import { Utils } from "../utils/utils";
 import { NodeMailer } from "../utils/nodemailer";
 import { Error } from "mongoose";
 import * as Bcrypt from "bcryptjs";
+import * as JWT from "jsonwebtoken";
 
 export class UserController {
     // =======================================================================
@@ -52,7 +53,7 @@ export class UserController {
     }
 
     private static async encryptPassword(req, res, next) {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             Bcrypt.hash(req.body.password, 10, (error, hash) => {
                 if (error) {
                     reject(error);
@@ -63,16 +64,16 @@ export class UserController {
         })
     }
 
-    static async test(req, res, next) {
-        const email = req.query.email;
-        const password = req.query.password;
+    // static async test(req, res, next) {
+    //     const email = req.query.email;
+    //     const password = req.query.password;
 
-        await User.findOne({ email: email }).then((user: any) => {
-            Bcrypt.compare(password, user.password, ((error, same) => {
-                res.send(same);
-            }))
-        })
-    }
+    //     await User.findOne({ email: email }).then((user: any) => {
+    //         Bcrypt.compare(password, user.password, ((error, same) => {
+    //             res.send(same);
+    //         }))
+    //     })
+    // }
 
     static async verify(req, res, next) {
         const verificationToken = req.body.verification_token;
@@ -114,5 +115,29 @@ export class UserController {
         } catch (error) {
             next(error);
         }
+    }
+
+    static login(req, res, next) {
+        const email = req.query.email;
+        const password = req.query.password;
+        Bcrypt.compare(password, req.user.password, ((error, isValid) => {
+            if (error) {
+                next(new Error(error.message));
+            } else if (!isValid) {
+                next(new Error('Email and Password Does Not Match'));
+            } else {
+                const data = {
+                    user_id: req.user._id,
+                    email: req.user.email
+                };
+                // here wee are using JWT for authentication purpose
+                const token = JWT.sign(data, 'secret', { expiresIn: '10d' });
+                res.json({
+                    token: token,
+                    user: req.user
+                })
+                // res.send(req.user);
+            }
+        }));
     }
 }

@@ -1,5 +1,6 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import User from "../models/user";
+import { Error } from "mongoose";
 
 export class userValidators {
     static signUp() {
@@ -13,7 +14,7 @@ export class userValidators {
                 }
             })
         }),
-        body('password', 'Password is required field').isAlphanumeric().isLength({ min: 8, max: 20 }).withMessage('Password can be from 8-20 Characters only'),
+        body('password', 'Password is required').isAlphanumeric().isLength({ min: 8, max: 20 }).withMessage('Password can be from 8-20 Characters only'),
         body('username', 'Username is required').isString()];
     }
 
@@ -23,7 +24,22 @@ export class userValidators {
     }
 
     static resendVerificationEmail() {
-        return [body('email').isEmail()]
+        return [body('email', 'Email is Required').isEmail()]
+    }
+
+    static login() {
+        return [query('email', 'Email is Required').isEmail()
+            .custom((email, { req }) => {
+                return User.findOne({ email: email }).then(user => {
+                    if (user) {
+                        req.user = user;
+                        return true;
+                    } else {
+                        throw new Error('User does not Exist');
+                    }
+                });
+            }),
+        query('password', 'Password is required').isAlphanumeric().isLength({ min: 8, max: 20 }).withMessage('Password can be from 8-20 Characters only')]
     }
 }
 
