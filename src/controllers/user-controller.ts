@@ -3,6 +3,7 @@ import { validationResult, body } from "express-validator";
 import { Utils } from "../utils/utils";
 import { NodeMailer } from "../utils/nodemailer";
 import { Error } from "mongoose";
+import * as Bcrypt from "bcryptjs";
 
 export class UserController {
     // =======================================================================
@@ -14,23 +15,22 @@ export class UserController {
 
         //method call for use validation result
         const email = req.body.email;
-        const password = req.body.password;
         const username = req.body.username;
         const verification_token = Utils.generateVerificationToken();
-
-        const data = {
-            email: email,
-            password: password,
-            username: username,
-            verification_token: verification_token,
-            verification_token_time: Date.now() + new Utils().MAX_TOKEN_TIME
-        };
-
         // ================================================================
         // Note: Here, we send token to user email for verification purpose
         // ================================================================
-
         try {
+
+            const hash = await UserController.encryptPassword(req, res, next);
+
+            const data = {
+                email: email,
+                password: hash,
+                username: username,
+                verification_token: verification_token,
+                verification_token_time: Date.now() + new Utils().MAX_TOKEN_TIME
+            };
             let user = await new User(data).save();
             res.send(user);
             await NodeMailer.sendMail({ to: ['vvineet456@gmail.com'], subject: 'Check mail process', html: `<p>Hello Vineet, we sending a OTP is <b>${verification_token}</b> for check process. Thank you</p>` })
@@ -39,9 +39,39 @@ export class UserController {
                 }).catch(err => {
                     next(err);
                 })
+
+            // await Bcrypt.hash(password, 10, (async (error, hash) => {
+            //     if (error) {
+            //         return next(error);
+            //     } else {
+            //     }
+            // }))
         } catch (error) {
             console.log(error);
         }
+    }
+
+    private static async encryptPassword(req, res, next) {
+        return new Promise((resolve,reject) => {
+            Bcrypt.hash(req.body.password, 10, (error, hash) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(hash);
+                }
+            })
+        })
+    }
+
+    static async test(req, res, next) {
+        const email = req.query.email;
+        const password = req.query.password;
+
+        await User.findOne({ email: email }).then((user: any) => {
+            Bcrypt.compare(password, user.password, ((error, same) => {
+                res.send(same);
+            }))
+        })
     }
 
     static async verify(req, res, next) {

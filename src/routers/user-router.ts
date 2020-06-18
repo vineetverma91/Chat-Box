@@ -17,6 +17,7 @@ export class UserRouter {
 
     getRoutes() {
         this.router.get('/send/verification/email',userValidators.resendVerificationEmail(), UserController.resendVerificationEmail);
+        this.router.get('/test', UserController.test);
     }
 
     postRoutes() {

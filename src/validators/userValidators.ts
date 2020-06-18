@@ -13,8 +13,7 @@ export class userValidators {
                 }
             })
         }),
-        body('password', 'Password is required field').isAlphanumeric()
-            .isLength({ min: 8, max: 20 }).withMessage('Password can be from 8-20 Characters only'),
+        body('password', 'Password is required field').isAlphanumeric().isLength({ min: 8, max: 20 }).withMessage('Password can be from 8-20 Characters only'),
         body('username', 'Username is required').isString()];
     }
 
