@@ -16,10 +16,8 @@ export class UserRouter {
     }
 
     getRoutes() {
-        this.router.get('/send/verification/email',userValidators.resendVerificationEmail(), GlobalMiddleware.checkError, UserController.resendVerificationEmail);
+        this.router.get('/send/verification/email', GlobalMiddleware.authenticate, UserController.resendVerificationEmail);
         this.router.get('/login',userValidators.login(),GlobalMiddleware.checkError, UserController.login);
-        // this.router.get('/test', UserController.test);
-
     }
 
     postRoutes() {
@@ -27,7 +25,7 @@ export class UserRouter {
     }
 
     patchRoutes() {
-        this.router.patch('/verify', userValidators.verifyUser(), GlobalMiddleware.checkError, UserController.verify);
+        this.router.patch('/verify', userValidators.verifyUser(), GlobalMiddleware.checkError, GlobalMiddleware.authenticate, UserController.verify);
     }
 
     deleteRoutes() {
