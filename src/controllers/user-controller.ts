@@ -32,7 +32,14 @@ export class UserController {
                 verification_token_time: Date.now() + new Utils().MAX_TOKEN_TIME
             };
             let user = await new User(data).save();
-            res.send(user);
+            if (user) {
+                await NodeMailer.sendMail({
+                    to: [email],
+                    subject: 'Email Verification',
+                    html: `<p>Welcome ${username}, for connecting. we sending a OTP is <b>${verification_token}</b> for verification. Thank you</p>`
+                });
+                res.send(user);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -75,6 +82,27 @@ export class UserController {
             } else {
                 throw new Error('User does not Exist');
             }
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async updatePassword(req, res, next) {
+
+        const user_id = req.user.user_id;
+        const password = req.body.password;
+        const newPassword = req.body.new_password;
+
+        try {
+            User.findOne({ _id: user_id }).then(async (user:any) => {
+                await Utils.comparePassword({
+                    plainPassword: password,
+                    encryptPassword: user.password
+                });
+                const encryptPassword = await Utils.encryptPassword(newPassword);
+                const updateUser = await User.findOneAndUpdate({_id: user_id}, {password:encryptPassword}, {new:true});
+                res.send(updateUser);
+            })
         } catch (error) {
             next(error);
         }
